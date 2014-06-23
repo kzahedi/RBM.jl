@@ -7,6 +7,8 @@ export rbm_init_output_bias_random!, rbm_init_hidden_bias_random!
 export rbm_rescale_weights!
 export rbm_L1, rbm_L2
 export rbm_write, rbm_read
+export crbm_binary_update!
+export sigm
 
 type RBM_t 
   n::Int64            # number of output nodes
@@ -136,6 +138,33 @@ function rbm_read(filename)
   rbm = deserialize(f)
   close(f)
   return rbm
+end
+
+function crbm_binary_up(rbm::RBM_t, y::Array{Float64}, x::Array{Float64})
+  r = repmat(rbm.c, 1, size(y)[1]) + rbm.V * y' + rbm.W * x'
+  convert(Matrix{Float64}, crbm_random_binary_draw(r'))
+end
+
+function crbm_binary_down(rbm::RBM_t, z::Array{Float64})
+  r = repmat(rbm.b, 1, size(z)[1]) + rbm.W' * z'
+  convert(Matrix{Float64}, crbm_random_binary_draw(r'))
+end
+
+function crbm_random_binary_draw(p::Matrix{Float64})
+  sigm(p) .> rand(size(p))
+end
+
+function crbm_binary_update!(rbm::RBM_t, y::Array{Float64}, X::Array{Float64})
+  Z = crbm_binary_up(rbm, y, X)
+  for i=1:rbm.uditer
+    X = crbm_binary_down(rbm, Z)
+    Z = crbm_binary_up(rbm, y, X)
+  end       
+  return X,Z
+end
+
+function sigm(p::Matrix{Float64})
+  1./(1 .+ exp(-p))
 end
 
 end # module
