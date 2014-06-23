@@ -2,10 +2,11 @@ module RBM
 
 export RBM_r, rbm_copy
 export rbm_create, rbm_create_with_standard_values
-export rbm_init_random_weights!, rbm_init_visible_bias!
+export rbm_init_weights_random!, rbm_init_visible_bias!
 export rbm_init_output_bias_random!, rbm_init_hidden_bias_random!
 export rbm_rescale_weights!
 export rbm_L1, rbm_L2
+export rbm_write, rbm_read
 
 type RBM_t 
   n::Int64            # number of output nodes
@@ -64,7 +65,7 @@ function rbm_copy(src::RBM_t)
   return copy
 end
 
-function rbm_init_random_weights!(rbm::RBM_t)
+function rbm_init_weights_random!(rbm::RBM_t)
   rbm.W = rand((rbm.m,rbm.n)) .* 0.01
   rbm.V = rand((rbm.m,rbm.k)) .* 0.01
 end
@@ -122,6 +123,19 @@ function rbm_L1(rbm::RBM_t, last::Float64)
   current = (sum(abs(rbm.W)) + sum(abs(rbm.V))) * 0.5
   diff    = rbm.weightcost * (current - last) * rbm.alpha
   return diff
+end
+
+function rbm_write(filename, rbm)
+  f = open(filename, "w")
+  serialize(f, rbm)
+  close(f)
+end
+
+function rbm_read(filename)
+  f = open(filename, "r")
+  rbm = deserialize(f)
+  close(f)
+  return rbm
 end
 
 end # module

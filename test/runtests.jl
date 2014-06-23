@@ -32,7 +32,7 @@ rbm = rbm_create_with_standard_values(10, 10, 10)
 @test rbm.b == zeros(rbm.n)
 @test rbm.c == zeros(rbm.m)
 
-rbm_init_random_weights!(rbm)
+rbm_init_weights_random!(rbm)
 
 @test rbm.W != zeros(rbm.m, rbm.n)
 @test rbm.V != zeros(rbm.m, rbm.k)
