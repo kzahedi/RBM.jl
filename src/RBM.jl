@@ -1,5 +1,7 @@
 module RBM
 
+using PyPlot
+
 export RBM_r, rbm_copy
 export rbm_create, rbm_create_with_standard_values
 export rbm_init_weights_random!, rbm_init_visible_bias!
@@ -9,10 +11,11 @@ export rbm_L1, rbm_L2
 export rbm_write, rbm_read
 export crbm_binary_update!
 export sigm
-export crbm_train_plain!
-# export crbm_train_L2! # TODO
-# export crbm_train_L1! # TODO
-# export crbm_train_weight_scaling! # TODO
+export rbm_visualise_learning_progress
+export crbm_binary_train_plain!
+# export crbm_binary_train_L2!             # TODO
+# export crbm_binary_train_L1!             # TODO
+# export crbm_binary_train_weight_scaling! # TODO
 
 type RBM_t 
   n::Int64            # number of output nodes
@@ -171,16 +174,36 @@ function sigm(p::Matrix{Float64})
   1./(1 .+ exp(-p))
 end
 
-function crbm_train_plain!(rbm, S, A, use_plot, verbose, perturbation)
-  N = ceil(log2(rbm.bins))   # nr units pro sensor
-  P = perturbation .* randn(size(S))
-  ss= binarise_matrix(S + P, rbm.bins) # binarisation of training data
-  aa= binarise_matrix(A, rbm.bins) # binarisation of training data
-  for t=1:rbm.numepochs
-    if verbose
-      print("\rworking on epoch ", t)
-    end
+function int2binary(v::Int64, n::Int64) # checked
+  r=zeros(n)
+  for i=1:n
+    r[i] = (((1 << (n-i)) & v)>0)?1.0:0.0
+  end
+  return r
+end
 
+function binarise_matrix(A::Matrix{Float64}, bins::Int64)
+  N = int(ceil(log2(bins)))
+  B=zeros(size(A)[1], size(A)[2]* N)
+  for i=1:size(A)[1]
+    for j=1:size(A)[2]
+      value = A[i,j]
+      d     = dvalue(value, bins)
+      b     = int2binary(d, N)
+      for u = 1:N
+        B[i,(j-1)*N+u] = b[u]
+      end
+    end
+  end
+  B
+end
+
+function crbm_binary_train_plain!(rbm, S, A, bins, perturbation)
+  N = ceil(log2(bins))   # nr units pro sensor
+  P = perturbation .* randn(size(S))
+  ss= binarise_matrix(S + P, bins) # binarisation of training data
+  aa= binarise_matrix(A, bins) # binarisation of training data
+  for t=1:rbm.numepochs
     # extract data batch for current epoch
     r = rand(rbm.batchsize);
     s = ss[int64(ceil(size(ss)[1] * r)),:] 
@@ -195,7 +218,7 @@ function crbm_train_plain!(rbm, S, A, use_plot, verbose, perturbation)
       A[i,:] = transpose(int2binary(int(floor(2^rbm.n * rand())), rbm.n )) 
     end
 
-    (A, Z) = crbmsampler(rbm, s, A) 
+    (A, Z) = crbm_binary_update(rbm, s, A) 
 
     Eb  = transpose(mean(a,1) - mean(A,1))
     Ec  = transpose(mean(z,1) - mean(Z,1))
@@ -205,7 +228,7 @@ function crbm_train_plain!(rbm, S, A, use_plot, verbose, perturbation)
     Eb = squeeze(Eb,2)
     Ec = squeeze(Ec,2)
 
-    if rbm.momentum==0
+    if rbm.momentum == 0
       rbm.b = rbm.b + rbm.alpha * Eb  
       rbm.c = rbm.c + rbm.alpha * Ec  
       rbm.W = rbm.W + rbm.alpha * EW  
@@ -222,14 +245,10 @@ function crbm_train_plain!(rbm, S, A, use_plot, verbose, perturbation)
       rbm.vV = EV
     end
 
-    if use_plot && (t == 1 || t % 100 == 0)
-      imshow(rbm.W)
-    end
-
   end # training iteration
-  return rbm
-end # crbmtrain function
-######
+end 
 
+function rbm_visualise_learning_progress(rbm::RBM_t)
+end
 
 end # module
