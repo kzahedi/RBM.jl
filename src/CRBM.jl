@@ -1,5 +1,6 @@
-
 module CRBM
+
+include("RBM_type.jl")
 
 function crbm_binary_up(rbm::RBM_t, y::Array{Float64}, x::Array{Float64})
   r = repmat(rbm.c, 1, size(y)[1]) + rbm.V * y' + rbm.W * x'
