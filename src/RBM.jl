@@ -5,6 +5,7 @@ export rbm_create, rbm_create_with_standard_values
 export rbm_init_random_weights!, rbm_init_visible_bias!
 export rbm_init_output_bias_random!, rbm_init_hidden_bias_random!
 export rbm_rescale_weights!
+export rbm_L1, rbm_L2
 
 type RBM_t 
   n::Int64            # number of output nodes
