@@ -2,9 +2,6 @@ module RBM
 
 using PyPlot
 
-include("RBM_type.jl")
-include("CRBM.jl")
-
 export RBM_t, rbm_copy
 export rbm_create, rbm_create_with_standard_values
 export rbm_init_weights_random!, rbm_init_visible_bias!
@@ -12,13 +9,28 @@ export rbm_init_output_bias_random!, rbm_init_hidden_bias_random!
 export rbm_rescale_weights!
 export rbm_calculate_L1, rbm_calculate_L2
 export rbm_write, rbm_read
-export crbm_binary_update!
 export sigm
 export rbm_visualise
-export crbm_binary_train_plain!
-# export crbm_binary_train_L2!             # TODO
-# export crbm_binary_train_L1!             # TODO
-# export crbm_binary_train_weight_scaling! # TODO
+
+type RBM_t 
+  n::Int64            # number of output nodes
+  m::Int64            # number of hidden nodes
+  k::Int64            # number of input nodes
+  uditer::Int64       # number of up-down passes when sampling
+  alpha::Float64      # learning rate
+  momentum::Float64   # contribution of previous gradient
+  weightcost::Float64 # weight cost for L2
+  numepochs::Int64    # number of training epochs
+  batchsize::Int64    # size of training data batches
+  W::Matrix{Float64}  # interaction weights between hidden and outputs
+  V::Matrix{Float64}  # interaction weights between hidden and inputs
+  b::Vector{Float64}  # bias weights for outputs
+  c::Vector{Float64}  # bias weights for hiddens
+  vW::Matrix{Float64} # for the momentum
+  vV::Matrix{Float64} # for the momentum
+  vb::Vector{Float64} # for the momentum
+  vc::Vector{Float64} # for the momentum
+end
 
 function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
   alpha::Float64, momentum::Float64, weightcost::Float64,
