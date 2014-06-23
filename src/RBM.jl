@@ -1,8 +1,9 @@
 module RBM
 
-export RNN_t, rbm_copy
+export RBM_r, rbm_copy
 export rbm_create, rbm_create_with_standard_values
 export rbm_init_random_weights!, rbm_init_visible_bias!
+export rbm_init_output_bias_random!, rbm_init_hidden_bias_random!
 export rbm_rescale_weights!
 
 type RBM_t 
@@ -63,6 +64,14 @@ end
 function rbm_init_random_weights!(rbm::RBM_t)
   rbm.W = rand((rbm.m,rbm.n)) .* 0.01
   rbm.V = rand((rbm.m,rbm.k)) .* 0.01
+end
+
+function rbm_init_hidden_bias_random!(rbm::RBM_t)
+  rbm.b = rand(rbm.n) .* 0.01
+end
+
+function rbm_init_output_bias_random!(rbm::RBM_t)
+  rbm.c = rand(rbm.m) .* 0.01
 end
 
 function rbm_init_visible_bias!(rbm::RBM_t, data::Array{Int64,2})

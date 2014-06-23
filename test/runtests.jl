@@ -25,6 +25,32 @@ rbm = rbm_create_with_standard_values(1, 2, 3)
 @test rbm.numepochs == 10000
 @test rbm.batchsize == 50
 
+# test random initialisation functions
+rbm = rbm_create_with_standard_values(10, 10, 10)
+@test rbm.W == zeros(rbm.m, rbm.n)
+@test rbm.V == zeros(rbm.m, rbm.k)
+@test rbm.b == zeros(rbm.n)
+@test rbm.c == zeros(rbm.m)
+
+rbm_init_random_weights!(rbm)
+
+@test rbm.W != zeros(rbm.m, rbm.n)
+@test rbm.V != zeros(rbm.m, rbm.k)
+@test size(rbm.W) == (rbm.m,rbm.n)
+@test size(rbm.V) == (rbm.m,rbm.k)
+@test rbm.b == zeros(rbm.n)
+@test rbm.c == zeros(rbm.m)
+
+rbm_init_output_bias_random!(rbm)
+@test rbm.c != zeros(rbm.m)
+@test size(rbm.c) == (rbm.m,)
+
+rbm_init_hidden_bias_random!(rbm)
+@test rbm.b != zeros(rbm.n)
+@test size(rbm.b) == (rbm.n,)
+
+#function rbm_init_hidden_bias_random!(rbm::RBM_t)
+
 # test visible bias initialisation
 r = [ [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] [1, 0, 0, 0, 0, 0, 0, 0, 0, 0] [1, 1, 0, 0, 0, 0, 0, 0, 0, 0] [1, 1, 1, 0, 0, 0, 0, 0, 0, 0] [1, 1, 1, 1, 0, 0, 0, 0, 0, 0] [1, 1, 1, 1, 1, 0, 0, 0, 0, 0] [1, 1, 1, 1, 1, 1, 0, 0, 0, 0] [1, 1, 1, 1, 1, 1, 1, 0, 0, 0] [1, 1, 1, 1, 1, 1, 1, 1, 0, 0] [1, 1, 1, 1, 1, 1, 1, 1, 1, 0] [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
