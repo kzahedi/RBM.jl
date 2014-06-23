@@ -13,6 +13,7 @@ type RBM_t
   uditer::Int64       # number of up-down passes when sampling
   alpha::Float64      # learning rate
   momentum::Float64   # contribution of previous gradient
+  weightcost::Float64 # weight cost for L2
   numepochs::Int64    # number of training epochs
   batchsize::Int64    # size of training data batches
   W::Matrix{Float64}  # interaction weights between hidden and outputs
@@ -27,7 +28,8 @@ end
 
 
 function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
-  alpha::Float64, momentum::Float64, numepochs::Int64, batchsize::Int64)
+  alpha::Float64, momentum::Float64, weightcost::Float64,
+  numepochs::Int64, batchsize::Int64)
 
   W = zeros((m, n))
   V = zeros((m, k))
@@ -40,12 +42,12 @@ function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
   vc = zeros(m)
 
   return RBM_t(n, m, k, uditer, alpha,
-               momentum, numepochs, batchsize,
+               momentum, weightcost, numepochs, batchsize,
                W, V, b, c, vW, vV, vb, vc)
 end
 
 function rbm_create_with_standard_values(n::Int64, m::Int64, k::Int64)
-  rbm_create(n, m, k, 10, 0.1, 0.5, 10000, 50)
+  rbm_create(n, m, k, 10, 0.1, 0.5, 0.001, 10000, 50)
 end
 
 function rbm_copy(src::RBM_t)
@@ -107,6 +109,18 @@ function rbm_rescale_weights!(rbm::RBM_t, abs_maximum::Float64)
     rbm.W = rbm.W .* factor
     rbm.V = rbm.V .* factor
   end
+end
+
+function rbm_L2(rbm::RBM_t, last::Float64)
+  current = (sum(rbm.W^2) + sum(rbm.V^2)) * 0.5
+  diff    = rbm.weightcost * (current - last) * rbm.alpha
+  return diff
+end
+
+function rbm_L1(rbm::RBM_t, last::Float64)
+  current = (sum(abs(rbm.W)) + sum(abs(rbm.V))) * 0.5
+  diff    = rbm.weightcost * (current - last) * rbm.alpha
+  return diff
 end
 
 end # module

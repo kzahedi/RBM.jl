@@ -1,29 +1,29 @@
 using RBM
 using Base.Test
 
-# write your own tests here
-
 # test initialisation
-rbm = rbm_create(11, 12, 13, 14, 0.1, 0.2, 100, 15)
-@test rbm.n         == 11
-@test rbm.m         == 12
-@test rbm.k         == 13
-@test rbm.uditer    == 14
-@test rbm.alpha     == 0.1
-@test rbm.momentum  == 0.2
-@test rbm.numepochs == 100
-@test rbm.batchsize == 15
+rbm = rbm_create(11, 12, 13, 14, 0.1, 0.2, 0.3, 100, 15)
+@test rbm.n          == 11
+@test rbm.m          == 12
+@test rbm.k          == 13
+@test rbm.uditer     == 14
+@test rbm.alpha      == 0.1
+@test rbm.momentum   == 0.2
+@test rbm.weightcost == 0.3
+@test rbm.numepochs  == 100
+@test rbm.batchsize  == 15
 
 # test standard initialisation
 rbm = rbm_create_with_standard_values(1, 2, 3)
-@test rbm.n         == 1
-@test rbm.m         == 2
-@test rbm.k         == 3
-@test rbm.uditer    == 10
-@test rbm.alpha     == 0.1
-@test rbm.momentum  == 0.5
-@test rbm.numepochs == 10000
-@test rbm.batchsize == 50
+@test rbm.n          == 1
+@test rbm.m          == 2
+@test rbm.k          == 3
+@test rbm.uditer     == 10
+@test rbm.alpha      == 0.1
+@test rbm.momentum   == 0.5
+@test rbm.weightcost == 0.001
+@test rbm.numepochs  == 10000
+@test rbm.batchsize  == 50
 
 # test random initialisation functions
 rbm = rbm_create_with_standard_values(10, 10, 10)
