@@ -9,6 +9,10 @@ export rbm_L1, rbm_L2
 export rbm_write, rbm_read
 export crbm_binary_update!
 export sigm
+export crbm_train_plain!
+# export crbm_train_L2! # TODO
+# export crbm_train_L1! # TODO
+# export crbm_train_weight_scaling! # TODO
 
 type RBM_t 
   n::Int64            # number of output nodes
@@ -166,5 +170,66 @@ end
 function sigm(p::Matrix{Float64})
   1./(1 .+ exp(-p))
 end
+
+function crbm_train_plain!(rbm, S, A, use_plot, verbose, perturbation)
+  N = ceil(log2(rbm.bins))   # nr units pro sensor
+  P = perturbation .* randn(size(S))
+  ss= binarise_matrix(S + P, rbm.bins) # binarisation of training data
+  aa= binarise_matrix(A, rbm.bins) # binarisation of training data
+  for t=1:rbm.numepochs
+    if verbose
+      print("\rworking on epoch ", t)
+    end
+
+    # extract data batch for current epoch
+    r = rand(rbm.batchsize);
+    s = ss[int64(ceil(size(ss)[1] * r)),:] 
+    a = aa[int64(ceil(size(aa)[1] * r)),:]
+
+    # generate hiddens given the data
+    z = crbmup(rbm,s,a) 
+
+    # generate random outputs to start sampler
+    A=zeros(size(s)[1], rbm.n) 
+    for i=1:size(s)[1]
+      A[i,:] = transpose(int2binary(int(floor(2^rbm.n * rand())), rbm.n )) 
+    end
+
+    (A, Z) = crbmsampler(rbm, s, A) 
+
+    Eb  = transpose(mean(a,1) - mean(A,1))
+    Ec  = transpose(mean(z,1) - mean(Z,1))
+    EW  = (z' * a - Z' * A)/size(s)[1]
+    EV  = (z' * s - Z' * s)/size(s)[1]
+
+    Eb = squeeze(Eb,2)
+    Ec = squeeze(Ec,2)
+
+    if rbm.momentum==0
+      rbm.b = rbm.b + rbm.alpha * Eb  
+      rbm.c = rbm.c + rbm.alpha * Ec  
+      rbm.W = rbm.W + rbm.alpha * EW  
+      rbm.V = rbm.V + rbm.alpha * EV     
+    else 
+      rbm.b = rbm.b + rbm.alpha * Eb + rbm.momentum * rbm.vb 
+      rbm.c = rbm.c + rbm.alpha * Ec + rbm.momentum * rbm.vc 
+      rbm.W = rbm.W + rbm.alpha * EW + rbm.momentum * rbm.vW 
+      rbm.V = rbm.V + rbm.alpha * EV + rbm.momentum * rbm.vV
+
+      rbm.vb = Eb
+      rbm.vc = Ec
+      rbm.vW = EW
+      rbm.vV = EV
+    end
+
+    if use_plot && (t == 1 || t % 100 == 0)
+      imshow(rbm.W)
+    end
+
+  end # training iteration
+  return rbm
+end # crbmtrain function
+######
+
 
 end # module
