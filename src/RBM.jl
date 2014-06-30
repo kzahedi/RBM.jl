@@ -1,6 +1,6 @@
 module RBM
 
-using PyPlot
+#using PyPlot
 
 export RBM_t, rbm_copy
 export rbm_create, rbm_create_with_standard_values
@@ -75,8 +75,8 @@ end
 
 
 function rbm_init_weights_random!(rbm::RBM_t)
-  rbm.W = rand((rbm.m,rbm.n)) .* 0.01
-  rbm.V = rand((rbm.m,rbm.k)) .* 0.01
+  rbm.W = randn((rbm.m,rbm.n)) .* 0.01
+  rbm.V = randn((rbm.m,rbm.k)) .* 0.01
 end
 
 
@@ -100,15 +100,14 @@ function rbm_init_visible_bias!(rbm::RBM_t, data::Array{Int64,2})
   l = size(data)[1]
   for i=1:rbm.n
     s = sum(data[:,i])
-    if s == l
+    if s == l # only 1 in data
       p =  (l-1) / l
-      rbm.b[i] = log2(p/(1.0 - p))
-    elseif s == 0
-      rbm.b[i] = 0.0
+    elseif s == 0 # no 1 in data
+      p =  1 / l
     else
       p = s / l
-      rbm.b[i] = log2(p/(1.0 - p))
     end
+    rbm.b[i] = log2(p/(1.0 - p))
   end
 end
 
