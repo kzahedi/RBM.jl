@@ -3,8 +3,9 @@ module RBM
 #using PyPlot
 
 export RBM_t, rbm_copy
-export rbm_create, rbm_create_with_standard_values
-export rbm_init_weights_random!, rbm_init_visible_bias!
+export rbm_create
+export rbm_init_weights_random!
+export rbm_init_visible_bias!
 export rbm_init_output_bias_random!, rbm_init_hidden_bias_random!
 export rbm_rescale_weights!
 export rbm_calculate_L1, rbm_calculate_L2
@@ -53,10 +54,6 @@ end
 
 
 
-function rbm_create_with_standard_values(n::Int64, m::Int64, k::Int64)
-  rbm_create(n, m, k, 10, 0.1, 0.5, 0.001, 10000, 50)
-end
-
 
 
 function rbm_copy(src::RBM_t)
@@ -95,7 +92,9 @@ end
 
 function rbm_init_visible_bias!(rbm::RBM_t, data::Array{Int64,2})
   # each row of the data must contain be of type {0,1}^k
-  @assert (size(data)[2] == rbm.n) "rbm_init_visible_bias!: Each row of the data array must be of type {0,1}^k"
+  n = size(data)[2]
+  N = rbm.n
+  @assert (size(data)[2] == rbm.n) "rbm_init_visible_bias!: Each row of the data array must be of type {0,1}^n. It has $n and not $N"
 
   l = size(data)[1]
   for i=1:rbm.n
