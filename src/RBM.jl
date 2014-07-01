@@ -14,6 +14,7 @@ export sigm
 export rbm_visualise
 
 type RBM_t 
+  bins::Int64
   n::Int64            # number of output nodes
   m::Int64            # number of hidden nodes
   k::Int64            # number of input nodes
@@ -35,7 +36,7 @@ end
 
 function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
   alpha::Float64, momentum::Float64, weightcost::Float64,
-  numepochs::Int64, batchsize::Int64)
+  numepochs::Int64, batchsize::Int64, bins::Int64)
 
   W = zeros((m, n))
   V = zeros((m, k))
@@ -47,7 +48,7 @@ function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
   vb = zeros(n)
   vc = zeros(m)
 
-  return RBM_t(n, m, k, uditer, alpha,
+  return RBM_t(bins, n, m, k, uditer, alpha,
                momentum, weightcost, numepochs, batchsize,
                W, V, b, c, vW, vV, vb, vc)
 end
@@ -57,7 +58,7 @@ end
 
 
 function rbm_copy(src::RBM_t)
-  copy = rbm_create(src.n, src.m, src.k, src.uditer, src.alpha, src.momentum, src.numepochs, src.batchsize)
+  copy = rbm_create(src.n, src.m, src.k, src.uditer, src.alpha, src.momentum, src.numepochs, src.batchsize, src.bins)
   copy.W  = deepcopy(src.W)
   copy.V  = deepcopy(src.V)
   copy.b  = deepcopy(src.b)
