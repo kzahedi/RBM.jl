@@ -9,7 +9,7 @@ export rbm_init_weights_random!
 export rbm_init_visible_bias!
 export rbm_init_output_bias_random!, rbm_init_hidden_bias_random!
 export rbm_rescale_weights!
-export rbm_calculate_L1, rbm_calculate_L2
+#= export rbm_calculate_L1, rbm_calculate_L2 =#
 export rbm_write, rbm_read
 export sigm
 export rbm_visualise
@@ -33,11 +33,12 @@ type RBM_t
   vV::Matrix{Float64} # for the momentum
   vb::Vector{Float64} # for the momentum
   vc::Vector{Float64} # for the momentum
+  dropout::Float64
 end
 
 function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
   alpha::Float64, momentum::Float64, weightcost::Float64,
-  numepochs::Int64, batchsize::Int64, bins::Int64)
+  numepochs::Int64, batchsize::Int64, bins::Int64, dropout::Float64)
 
   W = zeros((m, n))
   V = zeros((m, k))
@@ -51,7 +52,7 @@ function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
 
   return RBM_t(bins, n, m, k, uditer, alpha,
                momentum, weightcost, numepochs, batchsize,
-               W, V, b, c, vW, vV, vb, vc)
+               W, V, b, c, vW, vV, vb, vc, dropout)
 end
 
 
@@ -59,7 +60,7 @@ end
 
 
 function rbm_copy(src::RBM_t)
-  copy = rbm_create(src.n, src.m, src.k, src.uditer, src.alpha, src.momentum, src.weightcost, src.numepochs, src.batchsize, src.bins)
+  copy = rbm_create(src.n, src.m, src.k, src.uditer, src.alpha, src.momentum, src.weightcost, src.numepochs, src.batchsize, src.bins, src.dropout)
   copy.W  = deepcopy(src.W)
   copy.V  = deepcopy(src.V)
   copy.b  = deepcopy(src.b)
@@ -132,19 +133,19 @@ end
 
 
 
-function rbm_calculate_L2(rbm::RBM_t, last::Float64)
-  current = (sum(rbm.W^2) + sum(rbm.V^2)) * 0.5
-  diff    = rbm.weightcost * (current - last) * rbm.alpha
-  return diff
-end
+#= function rbm_calculate_L2(rbm::RBM_t, last::Float64) =#
+  #= current = sum(rbm.W^2) + sum(rbm.V^2) =#
+  #= diff    = rbm.weightcost * (current - last) * rbm.alpha =#
+  #= return diff =#
+#= end =#
 
 
 
-function rbm_calculate_L1(rbm::RBM_t, last::Float64)
-  current = (sum(abs(rbm.W)) + sum(abs(rbm.V))) * 0.5
-  diff    = rbm.weightcost * (current - last) * rbm.alpha
-  return diff
-end
+#= function rbm_calculate_L1(rbm::RBM_t, last::Float64) =#
+  #= current = sum(abs(rbm.W)) + sum(abs(rbm.V)) =#
+  #diff    = rbm.weightcost * (current - last) * rbm.alpha
+  #= return diff =#
+#= end =#
 
 
 
