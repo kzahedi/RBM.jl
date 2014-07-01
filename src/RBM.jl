@@ -2,7 +2,8 @@ module RBM
 
 #using PyPlot
 
-export RBM_t, rbm_copy
+export RBM_t
+export rbm_copy
 export rbm_create
 export rbm_init_weights_random!
 export rbm_init_visible_bias!
@@ -58,7 +59,7 @@ end
 
 
 function rbm_copy(src::RBM_t)
-  copy = rbm_create(src.n, src.m, src.k, src.uditer, src.alpha, src.momentum, src.numepochs, src.batchsize, src.bins)
+  copy = rbm_create(src.n, src.m, src.k, src.uditer, src.alpha, src.momentum, src.weightcost, src.numepochs, src.batchsize, src.bins)
   copy.W  = deepcopy(src.W)
   copy.V  = deepcopy(src.V)
   copy.b  = deepcopy(src.b)
