@@ -34,11 +34,13 @@ type RBM_t
   vb::Vector{Float64} # for the momentum
   vc::Vector{Float64} # for the momentum
   dropout::Float64
+  perturbation::Float64
 end
 
 function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
   alpha::Float64, momentum::Float64, weightcost::Float64,
-  numepochs::Int64, batchsize::Int64, bins::Int64, dropout::Float64)
+  numepochs::Int64, batchsize::Int64, bins::Int64, dropout::Float64,
+  perturbation::Float64)
 
   W = zeros((m, n))
   V = zeros((m, k))
@@ -52,7 +54,7 @@ function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
 
   return RBM_t(bins, n, m, k, uditer, alpha,
                momentum, weightcost, numepochs, batchsize,
-               W, V, b, c, vW, vV, vb, vc, dropout)
+               W, V, b, c, vW, vV, vb, vc, dropout, perturbation)
 end
 
 
