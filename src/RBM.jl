@@ -10,7 +10,7 @@ export rbm_init_visible_bias!
 export rbm_init_output_bias_random!, rbm_init_hidden_bias_random!
 export rbm_rescale_weights!
 #= export rbm_calculate_L1, rbm_calculate_L2 =#
-export rbm_write, rbm_read
+export rbm_write, rbm_read, rbm_read_old
 export sigm
 export rbm_visualise
 
@@ -56,6 +56,9 @@ function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
                momentum, weightcost, numepochs, batchsize,
                W, V, b, c, vW, vV, vb, vc, dropout, perturbation)
 end
+
+rbm_create(n::Int64, m::Int64, k::Int64) = rbm_create(n, m, k, 15, 0.01, 0.5, 0.001, 10000, 100, 16, 0.0, 0.1)
+
 
 
 
@@ -162,6 +165,51 @@ end
 function rbm_read(filename)
   f = open(filename, "r")
   rbm = deserialize(f)
+  close(f)
+  return rbm
+end
+
+function rbm_read_old(filename)
+  f        = open(filename, "r")
+  s        = split(strip(readline(f)))
+
+  bins     = int(eval(parse(s[1])))
+  n        = int(eval(parse(s[2])))
+  m        = int(eval(parse(s[3])))
+  k        = int(eval(parse(s[4])))
+  uditer   = int(eval(parse(s[5])))
+  alpha    = float64(eval(parse(s[6])))
+  momentum = float64(eval(parse(s[7])))
+  epochs   = int(eval(parse(s[8])))
+  batch    = int(eval(parse(s[9])))
+  memory   = int(eval(parse(s[10])))
+
+  println("n: ", n, " bins: ", bins, " m: ", m, " k: ", k, " uditer: ", uditer)
+  rbm = rbm_create(n, m, k, uditer, alpha, momentum, 0.0, epochs, batch, bins, 0.0, 0.0)
+
+  # reading W
+  for i=1:m
+    l = split(strip(readline(f)))
+    for j=1:n
+      rbm.W[i,j] = eval(parse(l[j]))
+    end
+  end
+  # reading V
+  for i=1:m
+    l = split(strip(readline(f)))
+    for j=1:k
+      rbm.V[i,j]=eval(parse(l[j]))
+    end
+  end
+  # reading b
+  bs = split(strip(readline(f)))
+  for i=1:length(bs)
+    rbm.b[i] = eval(parse(bs[i]))
+  end
+  cs = split(strip(readline(f)))
+  for i=1:length(cs)
+    rbm.c[i] = eval(parse(cs[i]))
+  end
   close(f)
   return rbm
 end
