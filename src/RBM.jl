@@ -5,6 +5,7 @@ module RBM
 export RBM_t
 export rbm_copy
 export rbm_create
+export rbm_create_full
 export rbm_init_weights_random!
 export rbm_init_visible_bias!
 export rbm_init_output_bias_random!, rbm_init_hidden_bias_random!
@@ -37,7 +38,7 @@ type RBM_t
   perturbation::Float64
 end
 
-function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
+function rbm_create_full(n::Int64, m::Int64, k::Int64, uditer::Int64,
   alpha::Float64, momentum::Float64, weightcost::Float64,
   numepochs::Int64, batchsize::Int64, bins::Int64, dropout::Float64,
   perturbation::Float64)
@@ -57,7 +58,7 @@ function rbm_create(n::Int64, m::Int64, k::Int64, uditer::Int64,
                W, V, b, c, vW, vV, vb, vc, dropout, perturbation)
 end
 
-rbm_create(n::Int64, m::Int64, k::Int64) = rbm_create(n, m, k, 15, 0.01, 0.5, 0.001, 10000, 100, 16, 0.0, 0.1)
+rbm_create(n::Int64, m::Int64, k::Int64) = rbm_create_full(n, m, k, 15, 0.01, 0.5, 0.001, 10000, 100, 16, 0.0, 0.1)
 
 
 
