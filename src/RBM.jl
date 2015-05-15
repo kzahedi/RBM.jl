@@ -3,6 +3,7 @@ module RBM
 #using PyPlot
 
 export RBM_t
+export serialize
 export rbm_copy
 export rbm_create
 export rbm_create_full
@@ -37,6 +38,8 @@ type RBM_t
   dropout::Float64
   perturbation::Float64
 end
+
+#= serialize(s, rbm::RBM_t) = serialize(f, rbm) =#
 
 function rbm_create_full(n::Int64, m::Int64, k::Int64, uditer::Int64,
   alpha::Float64, momentum::Float64, weightcost::Float64,
@@ -156,17 +159,17 @@ end
 
 
 function rbm_write(filename, rbm)
-  f = open(filename, "w")
-  serialize(f, rbm)
-  close(f)
+  fd = open(filename, "w")
+  serialize(fd, rbm)
+  close(fd)
 end
 
 
 
 function rbm_read(filename)
-  f = open(filename, "r")
-  rbm = deserialize(f)
-  close(f)
+  fd = open(filename, "r")
+  rbm = deserialize(fd)
+  close(fd)
   return rbm
 end
 
